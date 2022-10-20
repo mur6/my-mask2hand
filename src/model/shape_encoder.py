@@ -1,23 +1,9 @@
 import torch
 import torch.nn as nn
-
-# PyTorch3D rendering components
-from pytorch3d.renderer import (
-    BlendParams,
-    MeshRasterizer,
-    MeshRenderer,
-    PerspectiveCameras,
-    RasterizationSettings,
-    SoftSilhouetteShader,
-    TexturesVertex,
-)
-
-# PyTorch3D data structures
-from pytorch3d.structures import Meshes
 from torchvision import models
 
 ##################################################
-## Multi-head Encoder
+# Multi-head Encoder
 ##################################################
 
 
