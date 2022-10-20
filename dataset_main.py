@@ -7,7 +7,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from dataset import FreiHandDataset
+from dataset import FreiHandDataset_Estimated as FreiHandDataset
 
 
 def make_dataset(data_path):
@@ -36,16 +36,20 @@ def make_dataset(data_path):
         transform=transform,
         augment=True,
     )
-    dataset_val = FreiHandDataset(
-        data_path,
-        joints_anno_file,
-        camera_Ks_file,
-        data_split_file,
-        vertices_anno_file,
-        split="val",
-        transform=transform,
-        augment=False,
-    )
+    # dataset_val = FreiHandDataset(
+    #     data_path,
+    #     joints_anno_file,
+    #     camera_Ks_file,
+    #     data_split_file,
+    #     vertices_anno_file,
+    #     split="val",
+    #     transform=transform,
+    #     augment=False,
+    # )
+    image, focal_len, image_ref, label, dist_map, mesh = dataset_train[0]
+    print(image.shape)
+    print(focal_len)
+    print(mesh.shape)
 
 
 make_dataset("./data/freihand")

@@ -107,8 +107,9 @@ class FreiHandDataset(Dataset):
         self.transform = transform
         self.augment = augment
 
-        with open(os.path.join(path, data_split_file), "r") as fh:
-            split_ids = json.load(fh)[f"{split}_ids"]
+        # with open(os.path.join(path, data_split_file), "r") as fh:
+        #     split_ids = json.load(fh)[f"{split}_ids"]
+        split_ids = [0, 1]
 
         with open(os.path.join(path, joints_anno_file), "r") as fh:
             self.joints = json.load(fh)
@@ -249,14 +250,15 @@ class FreiHandDataset_Estimated(Dataset):
         self.transform = transform
         self.augment = augment
 
-        with open(os.path.join(path, data_split_file), "r") as fh:
-            split_ids = json.load(fh)[f"{split}_ids"]
+        # with open(os.path.join(path, data_split_file), "r") as fh:
+        #     split_ids = json.load(fh)[f"{split}_ids"]
+        split_ids = [0, 1]
 
         with open(os.path.join(path, joints_anno_file), "r") as fh:
             self.joints = json.load(fh)
             self.joints = (np.array(self.joints)[split_ids] * 1000).tolist()
 
-        self.image_paths = [os.path.join(path, f"training/mask/{i:08}.jpg") for i in split_ids]
+        self.image_paths = [os.path.join(path, f"evaluation/rgb/{i:08}.jpg") for i in split_ids]
 
         with open(os.path.join(path, camera_Ks_file), "r") as fh:
             self.camera_Ks = json.load(fh)
