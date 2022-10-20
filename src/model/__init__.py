@@ -14,9 +14,10 @@ from pytorch3d.renderer import (
 
 # PyTorch3D data structures
 from pytorch3d.structures import Meshes
-from refine_net import RefineNet
-from shape_encoder import Encoder_with_Shape
 from torchvision import models
+
+from .refine_net import RefineNet
+from .shape_encoder import Encoder_with_Shape
 
 
 class HandSilhouetteNet3(nn.Module):
