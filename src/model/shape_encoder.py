@@ -44,14 +44,18 @@ class Encoder_with_Shape(nn.Module):
         global_orientation = self.rotation_estimator(x)
         translation = self.translation_estimator(torch.cat([x, focal_lens], -1))
         # hand_shape = self.hand_shape_estimator(x)
+        print(f"global_orientation: {global_orientation.shape}")
+        print(f"translation: {translation.shape}")
         output = torch.cat([global_orientation, translation], -1)
         return output
 
 
 if __name__ == "__main__":
     model = Encoder_with_Shape()
+    inputs = torch.rand(1, 1, 224, 224)
     focal_lens = torch.tensor([[531.9495, 532.2600]])
     # x = torch.rand(1, 512)
-    # print(x.shape, focal_lens.shape)
-    out = model(torch.rand(1, 1, 224, 224), focal_lens)
+    print(inputs.shape, focal_lens.shape)
+    out = model(inputs, focal_lens)
     print(out.shape)
+    print(out)

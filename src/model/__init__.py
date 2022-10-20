@@ -57,7 +57,7 @@ class HandSilhouetteNet3(nn.Module):
             faces_per_pixel=100,
         )
 
-    def forward(self, img, mask_gt, focal_lens):
+    def forward(self, img, focal_lens, mask_gt):
         # Initialize a perspective camera
         # fx = fx_screen * 2.0 / image_width
         # fy = fy_screen * 2.0 / image_height
@@ -73,19 +73,20 @@ class HandSilhouetteNet3(nn.Module):
 
         # Silhouette to pose PCAs & 3D global orientation & 3D translation & shape parameters
         code = self.encoder(img, focal_lens)
-        pose_pcas, global_orient, transl, betas = code[:, :-16], code[:, -16:-13], code[:, -13:-10], code[:, -10:]
+        print(f"code: {code.shape}")
+        global_orient, transl = code[:, 0:3], code[:, 3:6]
 
         batch_size = code.shape[0]
 
         # Global orient & pose PCAs to 3D hand joints & reconstructed silhouette
-        rh_output = self.rh_model(
-            betas=betas,
-            global_orient=global_orient,
-            hand_pose=pose_pcas,
-            transl=transl,
-            return_verts=True,
-            return_tips=True,
-        )
+        # rh_output = self.rh_model(
+        #     betas=betas,
+        #     global_orient=global_orient,
+        #     hand_pose=pose_pcas,
+        #     transl=transl,
+        #     return_verts=True,
+        #     return_tips=True,
+        # )
 
         # Initialize each vertex to be white in color
         verts_rgb = torch.ones_like(rh_output.vertices)  # (B, V, 3)
