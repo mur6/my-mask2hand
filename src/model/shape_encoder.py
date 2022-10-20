@@ -45,7 +45,6 @@ class Encoder_with_Shape(nn.Module):
             nn.ReLU(),
             nn.Linear(fc_in_features // 4, 3),  # 3D translation
         )
-
         # self.hand_shape_estimator = nn.Sequential(
         #     nn.Linear(fc_in_features, fc_in_features // 2),
         #     nn.ReLU(),
