@@ -76,8 +76,22 @@ renderer = MeshRenderer(
     shader=SoftPhongShader(device=device, cameras=cameras, lights=lights),
 )
 
-images = renderer(mesh)
+# raster_settings = RasterizationSettings(
+#     image_size=224,
+#     blur_radius=0.0,
+#     faces_per_pixel=100,
+# )
+blend_params = BlendParams(sigma=1e-4, gamma=1e-4, background_color=(1.0, 1.0, 1.0))
+silhouette_renderer = MeshRenderer(
+    rasterizer=MeshRasterizer(cameras=cameras, raster_settings=raster_settings),
+    shader=SoftSilhouetteShader(blend_params=blend_params),
+)
+
+# images = renderer(mesh)
+silhouettes = silhouette_renderer(meshes_world=mesh)
+silhouettes = silhouettes[0, ..., 3]
 plt.figure(figsize=(10, 10))
-plt.imshow(images[0, ..., :3].cpu().numpy())
+# plt.imshow(images[0, ..., :3].cpu().numpy())
+plt.imshow(silhouettes.cpu().numpy())
 plt.axis("off")
 plt.show()
