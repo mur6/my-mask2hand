@@ -131,5 +131,6 @@ if __name__ == "__main__":
     # out = model(, focal_lens)
     inputs = torch.rand(1, 1, 224, 224)
     focal_lens = torch.tensor([[531.9495, 532.2600]])
+    image_refs = torch.rand(1, 224, 224)
     outputs = model(inputs, focal_lens, image_refs)
     print(outputs.shape)
