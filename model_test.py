@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.model import HandSilhouetteNet3
 
+def test_for_simple_model():
+    from src.model import HandSilhouetteNet3
 
-def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = HandSilhouetteNet3(device)
 
@@ -19,4 +19,5 @@ def main():
     print(outputs.shape)
 
 
-main()
+if __name__ == "__main__":
+    test_for_simple_model()
