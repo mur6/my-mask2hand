@@ -3,3 +3,6 @@ torchvision
 matplotlib
 pandas
 opencv-python
+trimesh
+scipy
+chumpy==0.70
