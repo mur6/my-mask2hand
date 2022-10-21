@@ -12,3 +12,4 @@ __pycache__/
 data/freihand/
 data/cow_mesh
 models/
+data/input_images/
