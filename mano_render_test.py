@@ -1,5 +1,6 @@
 import argparse
 import random
+from pathlib import Path
 
 import cv2
 import matplotlib.pyplot as plt
@@ -9,6 +10,27 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
+from pytorch3d.io import load_obj, load_objs_as_meshes
+from pytorch3d.renderer import (
+    BlendParams,
+    DirectionalLights,
+    FoVPerspectiveCameras,
+    Materials,
+    MeshRasterizer,
+    MeshRenderer,
+    PerspectiveCameras,
+    PointLights,
+    RasterizationSettings,
+    SoftPhongShader,
+    SoftSilhouetteShader,
+    TexturesUV,
+    TexturesVertex,
+    look_at_view_transform,
+)
+from pytorch3d.structures import Meshes
+
+# from pytorch3d.vis.plotly_vis import AxisArgs, plot_batch_individually, plot_scene
+from pytorch3d.vis.texture_vis import texturesuv_image_matplotlib
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
@@ -129,10 +151,79 @@ def test_for_full_simple_model():
 
 
 import mano
-from mano.utils import Mesh
 
 
-def show_hand_silhouettes():
+def get_fov_cameras(device):
+    R, T = look_at_view_transform(2.7, 0, 180)
+    cameras = FoVPerspectiveCameras(device=device, R=R, T=T)
+    return cameras
+
+
+def get_perspective_cameras(device):
+    focal_lens = torch.tensor([[0.1, 0.1]])
+    cameras = PerspectiveCameras(focal_length=focal_lens * 2.0 / 224, device=device)
+    return cameras
+
+
+def get_renderer(device, cameras):
+    lights = PointLights(device=device, location=[[0.0, 0.0, -3.0]])
+    raster_settings = RasterizationSettings(
+        image_size=512,
+        blur_radius=0.0,
+        faces_per_pixel=1,
+    )
+    # Create a Phong renderer by composing a rasterizer and a shader. The textured Phong shader will
+    # interpolate the texture uv coordinates for each vertex, sample from a texture image and
+    # apply the Phong lighting model
+    renderer = MeshRenderer(
+        rasterizer=MeshRasterizer(cameras=cameras, raster_settings=raster_settings),
+        shader=SoftPhongShader(device=device, cameras=cameras, lights=lights),
+    )
+    return renderer
+
+
+def get_silhouette_renderer(cameras):
+    raster_settings = RasterizationSettings(
+        image_size=512,
+        blur_radius=0.0,
+        faces_per_pixel=1,
+    )
+    blend_params = BlendParams(sigma=1e-4, gamma=1e-4, background_color=(1.0, 1.0, 1.0))
+    silhouette_renderer = MeshRenderer(
+        rasterizer=MeshRasterizer(cameras=cameras, raster_settings=raster_settings),
+        shader=SoftSilhouetteShader(blend_params=blend_params),
+    )
+    return silhouette_renderer
+
+
+def vizualize(target_tensor):
+    target_np = target_tensor.cpu().numpy()
+    plt.figure(figsize=(10, 10))
+    plt.imshow(target_np)
+    # plt.imshow(silhouettes.cpu().numpy())
+    plt.axis("off")
+    plt.show()
+
+
+def vis_mano_right_hand_model(rh_model, output, mode=1):
+    h_meshes = rh_model.hand_meshes(output)
+    j_meshes = rh_model.joint_meshes(output)
+    h_meshes[0].show()
+    if mode == 1:
+        # visualize hand mesh only
+        h_meshes[0].show()
+    elif mode == 2:
+        # visualize joints mesh only
+        j_meshes[0].show()
+    elif mode == 3:
+        # visualize hand and joint meshes
+        from mano.utils import Mesh
+
+        hj_meshes = Mesh.concatenate_meshes([h_meshes[0], j_meshes[0]])
+        hj_meshes.show()
+
+
+def make_random_mano_model():
     mano_model_path = "./models/MANO_RIGHT.pkl"
     n_comps = 45
     batch_size = 1
@@ -149,16 +240,34 @@ def show_hand_silhouettes():
     output = rh_model(
         betas=betas, global_orient=global_orient, hand_pose=pose, transl=transl, return_verts=True, return_tips=True
     )
-    h_meshes = rh_model.hand_meshes(output)
-    j_meshes = rh_model.joint_meshes(output)
-    # visualize hand mesh only
-    h_meshes[0].show()
-    # visualize joints mesh only
-    j_meshes[0].show()
-    # visualize hand and joint meshes
-    hj_meshes = Mesh.concatenate_meshes([h_meshes[0], j_meshes[0]])
-    hj_meshes.show()
+    return rh_model, output
+
+
+def show_hand_silhouettes():
+    rh_model, output = make_random_mano_model()
+    coordinate_transform = torch.tensor([[-1, -1, 1]])
+    mesh_faces = torch.tensor(rh_model.faces.astype(int))
+    batch_size = 1
+    hand_meshes = Meshes(
+        verts=[output.vertices[i] * coordinate_transform for i in range(batch_size)],
+        faces=[mesh_faces for i in range(batch_size)],
+        # verts=[rh_output.vertices[0]],
+        # faces=[mesh_faces],
+        # textures=textures,
+    )
+    print(hand_meshes)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    cameras = get_fov_cameras(device)
+    mesh = hand_meshes
+    silhouettes = get_silhouette_renderer(cameras)(meshes_world=mesh)
+    print(silhouettes.shape)
+    vizualize(target_tensor=silhouettes[0, ..., 3])
+
+
+def main():
+    rh_model, output = make_random_mano_model()
+    vis_mano_right_hand_model(rh_model, output, mode=3)
 
 
 if __name__ == "__main__":
-    show_hand_silhouettes()
+    main()
