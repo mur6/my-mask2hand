@@ -87,11 +87,13 @@ silhouette_renderer = MeshRenderer(
     shader=SoftSilhouetteShader(blend_params=blend_params),
 )
 
-# images = renderer(mesh)
+images = renderer(mesh)
 silhouettes = silhouette_renderer(meshes_world=mesh)
+print(f"silhouettes: {silhouettes.shape}")
 silhouettes = silhouettes[0, ..., 3]
+print(f"silhouettes: {silhouettes.shape}")
 plt.figure(figsize=(10, 10))
-# plt.imshow(images[0, ..., :3].cpu().numpy())
-plt.imshow(silhouettes.cpu().numpy())
+plt.imshow(images[0, ..., :3].cpu().numpy())
+# plt.imshow(silhouettes.cpu().numpy())
 plt.axis("off")
 plt.show()
