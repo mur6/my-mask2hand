@@ -6,3 +6,4 @@ opencv-python
 trimesh
 scipy
 chumpy==0.70
+pyglet
