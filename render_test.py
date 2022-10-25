@@ -40,6 +40,8 @@ def create_mesh_from_mano(device):
     rh_model = mano.load(model_path=mano_model_path, is_rhand=True, num_pca_comps=num_pca_comps, flat_hand_mean=True)
     code = torch.rand(1, 61)
     pose_pcas, global_orient, transl, betas = code[:, :-16], code[:, -16:-13], code[:, -13:-10], code[:, -10:]
+    betas = betas * 0.1
+    pose_pcas = pose_pcas * 0.1
     # Global orient & pose PCAs to 3D hand joints & reconstructed silhouette
     rh_output = rh_model(
         betas=betas,
@@ -155,10 +157,11 @@ def main():
     mesh = create_mesh_from_mano(device)
     images = get_renderer(device, cameras)(mesh)
     silhouettes = get_silhouette_renderer(cameras)(meshes_world=mesh)
-    print(f"silhouettes: {silhouettes.shape}")
-    silhouettes = silhouettes[0, ..., 3]
-    print(f"silhouettes: {silhouettes.shape}")
-    vizualize(images[0, ..., :3])
+    # silhouettes = silhouettes[0, ..., 3]
+    # print(f"silhouettes: {silhouettes.shape}")
+    # print(f"silhouettes: {silhouettes.shape}")
+    # vizualize(target_tensor=images[0, ..., :3])
+    vizualize(target_tensor=silhouettes[0, ..., 3])
 
 
 main()
