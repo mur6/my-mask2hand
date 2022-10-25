@@ -63,9 +63,17 @@ def create_mesh_from_mano(device):
 
     # Create a Meshes object
     batch_size = 1
+    verts = [rh_output.vertices[i] * coordinate_transform for i in range(batch_size)]
+    faces = [mesh_faces for i in range(batch_size)]
+    print(f"orig verts: {verts[0].shape}")
+    print(f"orig faces: {faces[0].shape}")
+    print(f"rh_output.vertices: {rh_output.vertices.shape}")
+    print(f"mesh_faces: {mesh_faces.shape}")
     hand_meshes = Meshes(
-        verts=[rh_output.vertices[i] * coordinate_transform for i in range(batch_size)],
-        faces=[mesh_faces for i in range(batch_size)],
+        # verts=[rh_output.vertices[i] * coordinate_transform for i in range(batch_size)],
+        # faces=[mesh_faces for i in range(batch_size)],
+        verts=[rh_output.vertices[0]],
+        faces=[mesh_faces],
         textures=textures,
     )
     return hand_meshes
@@ -88,9 +96,16 @@ def load_mesh_from_file(device):
     return mesh
 
 
-def get_cameras(device):
+def get_fov_cameras(device):
     R, T = look_at_view_transform(2.7, 0, 180)
     cameras = FoVPerspectiveCameras(device=device, R=R, T=T)
+    return cameras
+
+
+def get_perspective_cameras(device):
+    # R, T = look_at_view_transform(2.7, 0, 180)
+    focal_lens = torch.tensor([[8.0, 8.0]])
+    cameras = PerspectiveCameras(focal_length=focal_lens * 2.0 / 224, device=device)
     return cameras
 
 
@@ -136,7 +151,7 @@ def vizualize(target_tensor):
 
 def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    cameras = get_cameras(device)
+    cameras = get_perspective_cameras(device)
     mesh = create_mesh_from_mano(device)
     images = get_renderer(device, cameras)(mesh)
     silhouettes = get_silhouette_renderer(cameras)(meshes_world=mesh)
