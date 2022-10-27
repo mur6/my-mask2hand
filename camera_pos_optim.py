@@ -148,7 +148,7 @@ class Model(nn.Module):
         return loss, image
 
 
-def main2(model, phong_renderer):
+def main2(model, phong_renderer, visualize=False):
     # We will save images periodically and compose them into a GIF.
     filename_output = "./teapot_optimization_demo_02.gif"
     writer = imageio.get_writer(filename_output, mode="I", duration=0.3)
@@ -160,16 +160,17 @@ def main2(model, phong_renderer):
     plt.figure(figsize=(10, 10))
 
     _, image_init = model()
-    plt.subplot(1, 2, 1)
-    plt.imshow(image_init.detach().squeeze().cpu().numpy()[..., 3])
-    plt.grid(False)
-    plt.title("Starting position")
+    if visualize:
+        plt.subplot(1, 2, 1)
+        plt.imshow(image_init.detach().squeeze().cpu().numpy()[..., 3])
+        plt.grid(False)
+        plt.title("Starting position")
 
-    plt.subplot(1, 2, 2)
-    plt.imshow(model.image_ref.cpu().numpy().squeeze())
-    plt.grid(False)
-    plt.title("Reference silhouette")
-    plt.show()
+        plt.subplot(1, 2, 2)
+        plt.imshow(model.image_ref.cpu().numpy().squeeze())
+        plt.grid(False)
+        plt.title("Reference silhouette")
+        plt.show()
 
     loop = tqdm(range(100))
     for i in loop:
