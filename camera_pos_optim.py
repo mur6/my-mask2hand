@@ -213,8 +213,10 @@ def viz1(silhouette, image_ref):
 
 
 def load_image():
-    image_name = "data/input_images/datasets/training/images/image_000032.jpg"
-    mask_name = "data/input_images/datasets/training/masks/image_000032.png"
+    # image_name = "data/input_images/datasets/training/images/image_000032.jpg"
+    # mask_name = "data/input_images/datasets/training/masks/image_000032.png"
+    image_name = "data/samples/image_000032.jpg"
+    mask_name = "data/samples/image_000032.png"
     mask = cv2.imread(mask_name, cv2.IMREAD_GRAYSCALE)
     mask = np.where(mask == 0, 0, 1)
     print(mask[0, 0])
