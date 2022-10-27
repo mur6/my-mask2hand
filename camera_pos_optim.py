@@ -44,8 +44,13 @@ import mano
 
 # import torchvision.transforms.functional as TF
 
-
-device = torch.device("cpu")
+# Setup
+if torch.cuda.is_available():
+    device = torch.device("cuda:0")
+    torch.cuda.set_device(device)
+else:
+    device = torch.device("cpu")
+    # device = torch.device("mps")
 
 
 def load_mesh_from_file(obj_filename):
