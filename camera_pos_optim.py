@@ -8,7 +8,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision.transforms.functional as TF
 
 # Util function for loading meshes
 from pytorch3d.io import load_obj, load_objs_as_meshes
@@ -42,6 +41,9 @@ from skimage import img_as_ubyte
 from tqdm import tqdm
 
 import mano
+
+# import torchvision.transforms.functional as TF
+
 
 device = torch.device("cpu")
 
